@@ -7,11 +7,8 @@ local function render_current_line(diagnostics, ns, bufnr, opts)
   local lnum = vim.api.nvim_win_get_cursor(0)[1] - 1
 
   for _, diagnostic in pairs(diagnostics) do
-    local show = diagnostic.end_lnum and (lnum >= diagnostic.lnum and lnum <= diagnostic.end_lnum)
-      or (lnum == diagnostic.lnum)
-    if show then
-      table.insert(current_line_diag, diagnostic)
-    end
+    local show = lnum == diagnostic.lnum
+    if show then table.insert(current_line_diag, diagnostic) end
   end
 
   render.show(ns, bufnr, current_line_diag, opts)
