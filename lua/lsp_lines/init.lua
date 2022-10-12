@@ -39,7 +39,7 @@ M.setup = function()
 
       vim.api.nvim_clear_autocmds({ group = "LspLines" })
       if opts.virtual_lines.only_current_line then
-        vim.api.nvim_create_autocmd("CursorMoved", {
+      vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI" }, {
           buffer = bufnr,
           callback = function()
             render_current_line(diagnostics, ns.user_data.virt_lines_ns, bufnr, opts)
