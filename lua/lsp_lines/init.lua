@@ -38,10 +38,9 @@ M.setup = function()
                 ns.user_data.virt_lines_ns = vim.api.nvim_create_namespace("")
             end
 
-            local grp = vim.api.nvim_create_augroup("LspLines" .. namespace, { clear = true })
+            local grp = vim.api.nvim_create_augroup("LspLines" .. namespace, { clear = false })
             if opts.virtual_lines.only_current_line then
-                local lnum = vim.api.nvim_win_get_cursor(0)[1] - 1
-                vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI", "InsertEnter", "InsertLeave" }, {
+                vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI", "InsertLeave", "InsertEnter" }, {
                     buffer = bufnr,
                     callback = function(ev)
                         render_current_line(diagnostics, ns.user_data.virt_lines_ns, bufnr, opts, ev["event"])
@@ -54,13 +53,14 @@ M.setup = function()
                 render.show(ns.user_data.virt_lines_ns, bufnr, diagnostics, opts)
             end
         end,
+
         ---@param namespace number
         ---@param bufnr number
         hide = function(namespace, bufnr)
             local ns = vim.diagnostic.get_namespace(namespace)
             if ns.user_data.virt_lines_ns then
                 render.hide(ns.user_data.virt_lines_ns, bufnr)
-                vim.api.nvim_clear_autocmds({ group = "LspLines" .. namespace })
+                vim.api.nvim_clear_autocmds({ group = "LspLines" .. namespace, buffer = bufnr })
             end
         end,
     }
