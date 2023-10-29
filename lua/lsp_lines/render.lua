@@ -45,6 +45,9 @@ end
 ---@param opts boolean|Opts
 ---@param source 'native'|'coc'|nil If nil, defaults to 'native'.
 function M.show(namespace, bufnr, diagnostics, opts, source)
+  -- Patch coming from Slotos, to remove once it has been merged
+  -- https://todo.sr.ht/~whynothugo/lsp_lines.nvim/44
+  if not vim.api.nvim_buf_is_loaded(bufnr) then return end
   vim.validate({
     namespace = { namespace, "n" },
     bufnr = { bufnr, "n" },
