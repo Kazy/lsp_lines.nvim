@@ -2,12 +2,12 @@ local M = {}
 
 local render = require("lsp_lines.render")
 
-local function render_current_line(diagnostics, ns, bufnr, opts)
+local function render_current_line(diagnostics, ns, bufnr, opts, ev)
     local current_line_diag = {}
     local lnum = vim.api.nvim_win_get_cursor(0)[1] - 1
 
     for _, diagnostic in pairs(diagnostics) do
-        local show = lnum == diagnostic.lnum
+        local show = lnum == diagnostic.lnum and vim.api.nvim_get_mode()["mode"] == "n" and ev ~= "InsertEnter"
         if show then
             table.insert(current_line_diag, diagnostic)
         end
@@ -41,15 +41,15 @@ M.setup = function()
             local grp = vim.api.nvim_create_augroup("LspLines" .. namespace, { clear = true })
             if opts.virtual_lines.only_current_line then
                 local lnum = vim.api.nvim_win_get_cursor(0)[1] - 1
-                vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI" }, {
+                vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI", "InsertEnter", "InsertLeave" }, {
                     buffer = bufnr,
-                    callback = function()
-                        render_current_line(diagnostics, ns.user_data.virt_lines_ns, bufnr, opts)
+                    callback = function(ev)
+                        render_current_line(diagnostics, ns.user_data.virt_lines_ns, bufnr, opts, ev["event"])
                     end,
                     group = grp,
                 })
                 -- Also show diagnostics for the current line before the first CursorMoved event
-                render_current_line(diagnostics, ns.user_data.virt_lines_ns, bufnr, opts)
+                render_current_line(diagnostics, ns.user_data.virt_lines_ns, bufnr, opts, nil)
             else
                 render.show(ns.user_data.virt_lines_ns, bufnr, diagnostics, opts)
             end
